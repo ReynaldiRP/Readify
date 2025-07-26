@@ -3,17 +3,24 @@ var bar1 = document.querySelector("[bar1]");
 var bar2 = document.querySelector("[bar2]");
 var bar3 = document.querySelector("[bar3]");
 var navbar_menus = document.querySelector("[navbar-menu]");
+var backdrop = document.querySelector(".navbar-backdrop");
 const collapse_height = navbar_menus.scrollHeight;
 
 expand_trigger.addEventListener("click", function () {
   elements = navbar_menus.querySelectorAll("a");
   if (navbar_menus.classList.contains("lg-max:max-h-0")) {
+    // Opening Navbar
     navbar_menus.classList.remove("lg-max:max-h-0");
     navbar_menus.classList.add("lg-max:max-h-54");
   } else {
+    // Closing Navbar
     navbar_menus.classList.remove("lg-max:max-h-54");
     navbar_menus.classList.add("lg-max:max-h-0");
   }
+  toggleNavItems();
+});
+const toggleNavItems = () => {
+  backdrop.classList.toggle("hidden");
   bar1.classList.toggle("rotate-44");
   bar1.classList.toggle("origin-10-10");
   bar1.classList.toggle("mt-1");
@@ -24,4 +31,19 @@ expand_trigger.addEventListener("click", function () {
   bar3.classList.toggle("origin-10-90");
   bar3.classList.toggle("mt-0.75");
   bar3.classList.toggle("mt-1.75");
+};
+
+// Close navbar when clicking on links & backdrop
+elements = (() => {
+  return [...navbar_menus.querySelectorAll("a"), backdrop];
+})();
+elements.forEach((link) => {
+  link.addEventListener("click", () => {
+    if (navbar_menus.classList.contains("lg-max:max-h-54")) {
+      // Closing Navbar
+      navbar_menus.classList.remove("lg-max:max-h-54");
+      navbar_menus.classList.add("lg-max:max-h-0");
+      toggleNavItems();
+    }
+  });
 });
