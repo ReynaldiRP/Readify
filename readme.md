@@ -1,30 +1,33 @@
-# **Readify** ✨
+# /
 
-<br>
+This template should help get you started developing with Vue 3 in Vite.
 
-### **Readify: Turn Images into Editable Text**
+## Recommended IDE Setup
 
-Readify is a sleek and efficient full-stack Optical Character Recognition (OCR) application designed to instantly convert text from images into a usable digital format.
+[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
 
-Built with **Vue.js** for a reactive user interface and a robust **Express.js** backend, Readify provides a seamless experience. Simply upload any image file—whether it's a photo of a document, a book page, or a business card—and the application's powerful OCR engine will accurately extract the text, making it ready for you to copy, edit, and use anywhere you need.
+## Type Support for `.vue` Imports in TS
 
-<br>
+TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
 
----
+## Customize configuration
 
-## **Tech Stack** 🛠️
+See [Vite Configuration Reference](https://vite.dev/config/).
 
-This project is built with a modern, efficient, and scalable technology stack.
+## Project Setup
 
-| Category | Technology | Purpose |
-| :--- | :--- | :--- |
-| **Frontend** | [Vue.js](https://vuejs.org/) | A progressive JavaScript framework for the UI. |
-| | [Vite](https://vitejs.dev/) | Next-generation frontend tooling for development. |
-| | [Axios](https://axios-http.com/) | Promise-based HTTP client for API requests. |
-| **Backend** | [Node.js](https://nodejs.org/) | JavaScript runtime environment. |
-| | [Express.js](https://expressjs.com/) | Fast, unopinionated, minimalist web framework. |
-| **OCR Engine**| [Tesseract.js](https://github.com/naptha/tesseract.js)| Pure JavaScript OCR for over 100 languages. |
-| **Middleware**| [Multer](https://github.com/expressjs/multer) | Node.js middleware for handling file uploads. |
-| | [CORS](https://github.com/expressjs/cors) | Middleware for enabling Cross-Origin requests. |
+```sh
+npm install
+```
 
-<br>
+### Compile and Hot-Reload for Development
+
+```sh
+npm run dev
+```
+
+### Type-Check, Compile and Minify for Production
+
+```sh
+npm run build
+```
