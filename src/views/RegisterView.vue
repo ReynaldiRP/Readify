@@ -1,28 +1,37 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { RouterLink } from "vue-router";
+
 import PasswordInput from "@/components/Inputs/PasswordInput.vue";
 import GeneralInput from "@/components/Inputs/DefaultInput.vue";
 import DefaultButton from "@/components/Buttons/DefaultButton.vue";
 
+import { useNotyf } from "@/composables/useNotyf";
+
 // Form data
-const email = ref("");
-const password = ref("");
-const confirmPassword = ref("");
+const formData = ref({
+  email: "",
+  password: "",
+  confirmPassword: "",
+});
+const isLoading = ref(false); // Add loading state
 
 // Validation state
 const hasTypedConfirmPassword = ref(false);
 
+// Get notyf instance from composable
+const { success, error, warning, info } = useNotyf();
+
 // Computed validation
 const passwordsMatch = computed(() => {
-  if (!hasTypedConfirmPassword.value || !confirmPassword.value) {
+  if (!hasTypedConfirmPassword.value || !formData.value.confirmPassword) {
     return true; // Don't show error until user starts typing
   }
-  return password.value === confirmPassword.value;
+  return formData.value.password === formData.value.confirmPassword;
 });
 
 const confirmPasswordError = computed(() => {
-  if (!hasTypedConfirmPassword.value || !confirmPassword.value) {
+  if (!hasTypedConfirmPassword.value || !formData.value.confirmPassword) {
     return "";
   }
   return passwordsMatch.value ? "" : "Passwords do not match";
@@ -35,11 +44,23 @@ const handleRegister = () => {
     return;
   }
 
-  console.log("Register attempt:", {
-    email: email.value,
-    password: password.value,
-    confirmPassword: confirmPassword.value,
-  });
+  const data = {
+    email: formData.value.email,
+    password: formData.value.password,
+    confirmPassword: formData.value.confirmPassword,
+  };
+  isLoading.value = true;
+  setTimeout(() => {
+    isLoading.value = false;
+
+    // clear form fields
+    type FormDataKeys = keyof typeof formData.value;
+
+    Object.keys(formData.value).forEach((key) => {
+      formData.value[key as FormDataKeys] = "";
+    });
+    success("Registration successful! Welcome aboard.");
+  }, 2000);
   // Add your register logic here
 };
 
@@ -60,32 +81,35 @@ const onConfirmPasswordInput = () => {
     <div class="flex-auto p-6">
       <form role="form" @submit.prevent="handleRegister">
         <GeneralInput
-          v-model="email"
+          v-model="formData.email"
           type="email"
           label="Email"
           placeholder="Email"
           required
           class="mb-4"
           id="registerEmail"
+          :disabled="isLoading"
         />
         <PasswordInput
-          v-model="password"
+          v-model="formData.password"
           label="Password"
           placeholder="Enter your password"
           id="registerPassword"
           required
           class="mb-4"
+          :disabled="isLoading"
         />
 
         <!-- Confirm Password with Error State -->
         <div class="mb-4">
           <PasswordInput
-            v-model="confirmPassword"
+            v-model="formData.confirmPassword"
             label="Confirm Password"
             placeholder="Enter your password again"
             id="confirmPassword"
             required
             @input="onConfirmPasswordInput"
+            :disabled="isLoading"
           />
           <!-- Error Message -->
           <div
@@ -98,7 +122,7 @@ const onConfirmPasswordInput = () => {
           <div
             v-else-if="
               passwordsMatch &&
-              confirmPassword.length > 0 &&
+              formData.confirmPassword.length > 0 &&
               hasTypedConfirmPassword
             "
             class="mt-1 text-sm text-green-500 font-medium"
@@ -112,8 +136,13 @@ const onConfirmPasswordInput = () => {
             text="Sign Up"
             type="submit"
             :disabled="
-              !passwordsMatch || !email || !password || !confirmPassword
+              isLoading ||
+              !passwordsMatch ||
+              !formData.email ||
+              !formData.password ||
+              !formData.confirmPassword
             "
+            :loading="isLoading"
             class=""
           />
         </div>
