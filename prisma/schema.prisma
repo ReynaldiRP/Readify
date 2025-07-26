@@ -3,25 +3,33 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
-  posts Post[]
+  id    String     @id @default(uuid())
+  email String  @unique @db.VarChar(255)
+  passwordHash String @db.VarChar(255)
+  name  String? @db.VarChar(255)
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @db.Timestamp(6)
+
+  sessions Session[]
+  @@map("users")
 }
 
-model Post {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  title     String
-  content   String?
-  published Boolean  @default(false)
-  viewCount Int      @default(0)
-  author    User?    @relation(fields: [authorId], references: [id])
-  authorId  Int?
+model Session {
+  id        String      @id @default(uuid())
+  userId    String
+  refreshToken     String   @unique @db.VarChar(255)
+  userAgent String? @db.VarChar(255)
+  ipAddress String? @db.VarChar(45)
+  expiredAt DateTime 
+  createdAt DateTime @default(now()) 
+
+  user      User     @relation(fields: [userId], references: [id])
+  @@map("sessions")
 }
+
+

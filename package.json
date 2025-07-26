@@ -3,16 +3,23 @@
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
-    "dev": "ts-node src/index.ts"
+    "dev": "nodemon src/server.ts",
+    "db:generate": "npx prisma generate",
+    "db:seed": "npx prisma db seed",
+    "db:migrate": "npx prisma migrate dev --name init",
+    "db:migrate:fresh": "npx prisma migrate reset",
+    "db:reset": "npx prisma migrate reset --skip-seed"
   },
   "dependencies": {
     "@prisma/client": "6.9.0",
     "@prisma/extension-accelerate": "2.0.2",
+    "dotenv": "^17.2.1",
     "express": "5.1.0"
   },
   "devDependencies": {
     "@types/express": "5.0.3",
     "@types/node": "22.15.32",
+    "nodemon": "^3.1.10",
     "prisma": "6.9.0",
     "ts-node": "10.9.2",
     "typescript": "5.8.2"
