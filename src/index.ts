@@ -1,13 +1,10 @@
 import dotenv from 'dotenv';
-import { Prisma, PrismaClient } from '@prisma/client';
-import { withAccelerate } from '@prisma/extension-accelerate';
 import express from 'express';
 import cors from 'cors';
 import { config } from './config/index';
+import indexRoutes from './routes/index.route';
 
 dotenv.config();
-
-const prisma = new PrismaClient().$extends(withAccelerate());
 
 const app = express();
 
@@ -18,5 +15,7 @@ app.use(
     credentials: true,
   })
 );
+
+app.use('/api', indexRoutes);
 
 export default app;

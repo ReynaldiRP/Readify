@@ -26,12 +26,11 @@ export const config = {
   auth: {
     bcryptSaltRounds: parseInt(process.env.BCRYPT_SALT_ROUNDS || '10', 10),
     jwtExpiresIn: process.env.JWT_EXPIRES_IN || '1h',
-    jwtSecret: process.env.JWT_SECRET,
+    jwtSecret: process.env.JWT_SECRET || 'default_secret',
   },
   api: {
     key: process.env.API_KEY,
   },
 } as const;
-
 
 export type Config = typeof config;
