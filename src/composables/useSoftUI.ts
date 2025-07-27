@@ -7,6 +7,7 @@ interface LoadedAsset {
 }
 
 export function useSoftUI() {
+  console.log("Reinitializing Soft UI Dashboard assets...");
   const loadedAssets: LoadedAsset[] = [];
   let initialized = false;
 
@@ -81,11 +82,11 @@ export function useSoftUI() {
 
       const basePath = "/assets";
 
-      // Always load perfect scrollbar (like the original script)
-      await Promise.all([
-        loadStylesheet(`${basePath}/css/perfect-scrollbar.css`),
-        loadJS(`${basePath}/js/perfect-scrollbar.js`, true),
-      ]);
+      // // Always load perfect scrollbar (like the original script)
+      // await Promise.all([
+      //   loadStylesheet(`${basePath}/css/perfect-scrollbar.css`),
+      //   loadJS(`${basePath}/js/perfect-scrollbar.js`, true),
+      // ]);
 
       // Conditional loading based on DOM elements (replicating original logic)
       const conditionalLoads: Promise<void>[] = [];

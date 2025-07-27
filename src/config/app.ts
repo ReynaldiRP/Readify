@@ -13,6 +13,8 @@ export const appConfig = {
     darkMode: true,
     notifications: true,
   },
+  environment: "dev", // dev or prod
 };
 // For easier access to just the app name
 export const APP_NAME = appConfig.name;
+export const isProduction = appConfig.environment === "prod";

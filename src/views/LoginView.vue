@@ -1,12 +1,18 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { RouterLink } from "vue-router";
+import { RouterLink, useRouter } from "vue-router";
+import { isProduction } from "@/config/app"; // Import your app configuration
 
 import PasswordInput from "@/components/Inputs/PasswordInput.vue";
 import GeneralInput from "@/components/Inputs/DefaultInput.vue";
 import DefaultButton from "@/components/Buttons/DefaultButton.vue";
 
 import { useNotyf } from "@/composables/useNotyf";
+
+import { useAuth } from "@/composables/useAuth";
+
+// Router
+const router = useRouter();
 
 // Form data
 const email = ref("");
@@ -17,9 +23,12 @@ const isLoading = ref(false); // Add loading state
 // Get notyf instance from composable
 const { success, error, warning, info } = useNotyf();
 
+// Use authentication composable
+const { login, logout } = useAuth();
+
 // Form submission
-const handleLogin = () => {
-  const data = {
+const handleLogin = async () => {
+  const credentials = {
     email: email.value,
     password: password.value,
     rememberMe: rememberMe.value,
@@ -33,14 +42,25 @@ const handleLogin = () => {
   isLoading.value = true;
   // try to login
   try {
-    console.log("Login data:", data);
-    setTimeout(() => {
-      isLoading.value = false;
-      success("Login successful! Welcome back.");
-    }, 2000);
-    // Show success message
+    console.log("Login data:", credentials);
+    if (isProduction) {
+      // Simulate network delay in productions
+      await new Promise((resolve) => setTimeout(resolve, 2000)); // 2 second delay
+    }
+    // Call the login function with credentials
+    const user = await login(credentials);
+
+    if (user) {
+      // Optionally redirect after successful login
+      router.push("/dashboard");
+    } else {
+      error("Login failed. Invalid credentials.");
+    }
   } catch (err) {
+    console.error("Login error:", err);
     error("Login failed. Please try again.");
+  } finally {
+    isLoading.value = false;
   }
 };
 </script>

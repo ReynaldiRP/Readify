@@ -1,19 +1,15 @@
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { onMounted, computed } from "vue";
 import { RouterLink, RouterView } from "vue-router";
 
 import { APP_NAME } from "@/config/app";
 
-import { useSoftUI } from "@/composables/useSoftUI";
+import { useAuth } from "@/composables/useAuth";
 
 // Define the app name as a reactive variable
 const appName = APP_NAME;
-
-// Initialize Soft UI Dashboard assets
-onMounted(() => {
-  const { reinitialize } = useSoftUI();
-  reinitialize();
-});
+// Use the authentication composable
+const { isAuthenticated, logout } = useAuth();
 </script>
 
 <template>
@@ -64,6 +60,7 @@ onMounted(() => {
                   ></span>
                 </span>
               </button>
+
               <div
                 navbar-menu
                 class="items-center flex-grow overflow-hidden transition-all duration-500 ease-soft lg-max:max-h-0 basis-full lg:flex lg:basis-auto"
