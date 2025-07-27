@@ -1,10 +1,3 @@
-// Add at the top to prevent multiple initializations
-if (window.navbarCollapseInitialized) {
-  window.navbarCollapseInitialized = true;
-} else {
-  window.navbarCollapseInitialized = false;
-}
-
 // Use event delegation instead of direct element selection
 document.addEventListener("click", function (e) {
   // Check if clicked element or its parent has navbar-trigger attribute
