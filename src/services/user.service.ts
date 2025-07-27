@@ -1,6 +1,6 @@
 import { Prisma, User } from '@prisma/client';
 import bcrypt from 'bcryptjs';
-import { Request } from 'express';
+import e, { Request } from 'express';
 import { prisma } from './prisma.service';
 import { createSession, clearUserSessions } from './session.service';
 import {
@@ -81,6 +81,14 @@ export const register = async (userData: AuthData): Promise<User> => {
     }
 
     return user;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const logout = async (userId: string): Promise<void> => {
+  try {
+    await clearUserSessions(userId);
   } catch (error) {
     throw error;
   }
