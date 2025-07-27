@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { login } from '../services/user.service';
+import { login, register } from '../services/user.service';
 
 export const userLogin = async (
   req: Request,
@@ -17,6 +17,34 @@ export const userLogin = async (
       },
       accessToken: user.accessToken,
       refreshToken: user.session.refreshToken,
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      return res.status(400).json({
+        error: error.message,
+      });
+    }
+
+    return res.status(500).json({
+      error: 'internal server error',
+    });
+  }
+};
+
+export const userRegister = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    const userData = req.body;
+    const user = await register(userData);
+    return res.status(201).json({
+      message: 'User register in successfully',
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      },
     });
   } catch (error) {
     if (error instanceof Error) {

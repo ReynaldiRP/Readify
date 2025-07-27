@@ -1,4 +1,4 @@
-import { User } from '@prisma/client';
+import { Prisma, User } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { Request } from 'express';
 import { prisma } from './prisma.service';
@@ -61,13 +61,30 @@ export const login = async (
   }
 };
 
-export const register = async (userData: AuthData) => {
+export const register = async (userData: AuthData): Promise<User> => {
   try {
-    
+    const { email, password } = userData;
+    await checkUserEmail(email);
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    const registerData: Prisma.UserCreateInput = {
+      email: email,
+      passwordHash: passwordHash,
+    };
+
+    const user = await prisma.user.create({
+      data: registerData,
+    });
+
+    if (!user) {
+      throw new Error('Register new user failed');
+    }
+
+    return user;
   } catch (error) {
-    
+    throw error;
   }
-}
+};
 
 const checkUserEmail = async (email: string): Promise<User | null> => {
   try {
