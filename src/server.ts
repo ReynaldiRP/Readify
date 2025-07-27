@@ -1,10 +1,18 @@
 import app from './index';
 import { config } from './config';
-import { connectPrisma, setupPrismaShutdown } from './services/prisma.service';
+import {
+  connectPrisma,
+  setupPrismaShutdown,
+  prisma,
+} from './services/prisma.service';
 
 (async () => {
   try {
     await connectPrisma();
+
+    console.log('Warming up database connection...');
+    await prisma.$queryRaw`SELECT 1`;
+    console.log('✅ Database connection warmed up');
 
     setupPrismaShutdown();
 

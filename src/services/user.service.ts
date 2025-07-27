@@ -1,17 +1,31 @@
-import { User, Prisma } from '@prisma/client';
+import { User } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { Request } from 'express';
 import { prisma } from './prisma.service';
-import { config } from '../config';
-import jwt, { SignOptions } from 'jsonwebtoken';
+import { createSession, clearUserSessions } from './session.service';
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  hashRefreshToken,
+} from './token.service';
 
-interface LoginData {
+interface AuthData {
   email: string;
   password: string;
 }
 
+interface SessionData {
+  userId: string;
+  userAgent: string | null;
+  ipAddress: string | null;
+  refreshToken: string;
+  expiredAt: Date;
+}
+
 export const login = async (
-  userData: LoginData
-): Promise<User & { token: string }> => {
+  userData: AuthData,
+  req: Request
+): Promise<User & { session: SessionData; accessToken: string }> => {
   try {
     const { email, password } = userData;
 
@@ -29,35 +43,31 @@ export const login = async (
       throw new Error('Email or password is incorrect');
     }
 
-    const token = createJwtToken(userData);
+    await clearUserSessions(user.id);
+
+    const accessToken = generateAccessToken(user.id);
+    const refreshToken = generateRefreshToken();
+    const hashedRefreshToken = hashRefreshToken(refreshToken);
+
+    const session = await createSession(user.id, req, hashedRefreshToken);
 
     return {
       ...user,
-      token,
+      session,
+      accessToken: accessToken,
     };
   } catch (error) {
     throw error;
   }
 };
 
-const createJwtToken = (userData: LoginData) => {
-  const { email, password } = userData;
-  const { jwtSecret, jwtExpiresIn } = config.auth;
-
-  if (!jwtSecret) {
-    throw new Error('JWT secret is not defined');
+export const register = async (userData: AuthData) => {
+  try {
+    
+  } catch (error) {
+    
   }
-
-  const token = jwt.sign(
-    { email, password },
-    jwtSecret as jwt.Secret,
-    {
-      expiresIn: jwtExpiresIn,
-    } as SignOptions
-  );
-
-  return token;
-};
+}
 
 const checkUserEmail = async (email: string): Promise<User | null> => {
   try {

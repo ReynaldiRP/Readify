@@ -11,7 +11,6 @@ export const prisma = new PrismaClient({
   },
 }).$extends(withAccelerate());
 
-
 export const connectPrisma = async (): Promise<void> => {
   if (isConnected) return;
   try {
@@ -25,9 +24,10 @@ export const connectPrisma = async (): Promise<void> => {
 
 export const disconnectPrisma = async (): Promise<void> => {
   try {
-    if (!isConnected) {
+    if (isConnected) {
       await prisma.$disconnect();
       isConnected = false;
+      console.log('✅ Prisma disconnected');
     }
   } catch (error) {
     console.error('Failed to disconnect from Prisma:', error);

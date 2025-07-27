@@ -7,24 +7,26 @@ export const userLogin = async (
 ): Promise<Response> => {
   try {
     const userData = req.body;
-    const user = await login(userData);
+    const user = await login(userData, req);
     return res.status(201).json({
       message: 'User logged in successfully',
       user: {
+        id: user.id,
         name: user.name,
         email: user.email,
       },
-      token: user.token,
+      accessToken: user.accessToken,
+      refreshToken: user.session.refreshToken,
     });
   } catch (error) {
     if (error instanceof Error) {
       return res.status(400).json({
-        message: error.message,
+        error: error.message,
       });
     }
 
     return res.status(500).json({
-      message: 'internal server error',
+      error: 'internal server error',
     });
   }
 };
