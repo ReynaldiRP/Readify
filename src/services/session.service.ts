@@ -4,14 +4,7 @@ import * as tokeService from './token.service';
 import { config } from '../config';
 import { StringValue } from 'ms';
 import { prisma } from './prisma.service';
-
-interface SessionData {
-  userId: string;
-  userAgent: string | null;
-  ipAddress: string | null;
-  refreshToken: string;
-  expiredAt: Date;
-}
+import { SessionData } from '../types/session';
 
 export const createSession = async (
   userId: string,
@@ -29,6 +22,7 @@ export const createSession = async (
       ipAddress: req.ip,
       refreshToken: token,
       expiredAt: expirationDate,
+      updatedAt: null,
     };
 
     const session = await prisma.session.create({
@@ -46,13 +40,15 @@ export const createSession = async (
 };
 
 export const clearUserSessions = async (userId: string): Promise<void> => {
-  const { count } = await prisma.session.deleteMany({
-    where: {
-      userId: userId,
-    },
-  });
+  try {
+    const session = await prisma.session.deleteMany({
+      where: { userId },
+    });
 
-  if (count > 0) {
-    console.log(`Cleared ${count} previous session(s) for user ${userId}`);
+    if (!session) {
+      throw new Error('Session deletion failed');
+    }
+  } catch (error) {
+    throw error;
   }
 };

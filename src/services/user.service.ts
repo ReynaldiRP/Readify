@@ -1,6 +1,6 @@
 import { Prisma, User } from '@prisma/client';
 import bcrypt from 'bcryptjs';
-import e, { Request } from 'express';
+import { Request, Response } from 'express';
 import { prisma } from './prisma.service';
 import { createSession, clearUserSessions } from './session.service';
 import {
@@ -8,29 +8,24 @@ import {
   generateRefreshToken,
   hashRefreshToken,
 } from './token.service';
-
-interface AuthData {
-  email: string;
-  password: string;
-}
-
-interface SessionData {
-  userId: string;
-  userAgent: string | null;
-  ipAddress: string | null;
-  refreshToken: string;
-  expiredAt: Date;
-}
+import { SessionData } from '../types/session';
+import { AuthData } from '../types/auth';
 
 export const login = async (
   userData: AuthData,
-  req: Request
-): Promise<User & { session: SessionData; accessToken: string }> => {
+  req: Request,
+  res: Response
+): Promise<User & { accessToken: string }> => {
   try {
     const { email, password } = userData;
 
     const user = await prisma.user.findUnique({
       where: { email },
+      include: {
+        _count: {
+          select: { sessions: true },
+        },
+      },
     });
 
     if (!user) {
@@ -40,20 +35,28 @@ export const login = async (
     const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
 
     if (!isPasswordValid) {
-      throw new Error('Email or password is incorrect');
+      throw new Error('password is incorrect');
     }
 
-    await clearUserSessions(user.id);
+    if (user._count.sessions > 0) {
+      await clearUserSessions(user.id);
+    }
 
     const accessToken = generateAccessToken(user.id);
     const refreshToken = generateRefreshToken();
     const hashedRefreshToken = hashRefreshToken(refreshToken);
 
-    const session = await createSession(user.id, req, hashedRefreshToken);
+    await createSession(user.id, req, hashedRefreshToken);
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
 
     return {
       ...user,
-      session,
       accessToken: accessToken,
     };
   } catch (error) {

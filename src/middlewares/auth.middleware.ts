@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { config } from '../config';
+import { handleTokenRefresh } from '../services/token.service';
 
 declare global {
   namespace Express {
@@ -10,33 +11,48 @@ declare global {
   }
 }
 
-export const authMiddleware = (
+export const authMiddleware = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
     const authHeader = req.headers.authorization;
+    const refreshToken = req.cookies.refreshToken;
+    const token = authHeader && authHeader.split(' ')[1];
 
-    if (!authHeader || !authHeader.startsWith('Bearer')) {
+    if (!token) {
       return res.status(401).json({
         error: 'Access token is required',
       });
     }
 
-    const token = authHeader.split(' ')[1];
-
     try {
       const decoded = jwt.verify(token, config.auth.jwtSecret) as {
         userId: string;
       };
+
       req.user = { id: decoded.userId };
       next();
     } catch (error) {
-      return res.status(401).json({
-        error: 'Access token expired or invalid',
-        code: 'TOKEN_EXPIRED',
-      });
+      if (error instanceof jwt.TokenExpiredError && token) {
+        try {
+          const result = await handleTokenRefresh(refreshToken);
+
+          res.setHeader('X-New-Access-Token', result.accessToken);
+
+          req.user = result.user;
+          next();
+        } catch (error) {
+          return res.status(401).json({
+            error: 'Token refresh failed',
+          });
+        }
+      } else {
+        return res.status(401).json({
+          error: 'Invalid token',
+        });
+      }
     }
   } catch (error) {
     return res.status(500).json({ error: 'Authentication failed' });

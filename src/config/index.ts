@@ -7,6 +7,7 @@ const requiredEnvVars = [
   'API_KEY',
   'BCRYPT_SALT_ROUNDS',
   'JWT_EXPIRES_IN',
+  'JWT_SECRET',
 ] as const;
 
 for (const envVar of requiredEnvVars) {
